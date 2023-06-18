@@ -1,7 +1,9 @@
+import Head from 'next/head';
 import User from '../../models/user';
 import mongoose from "mongoose";
 import { useRouter } from 'next/router'
 import Error from 'next/error'
+import axios from 'axios';
 import TextField from "@mui/material/TextField";
 import Box from "@mui/material/Box";
 import Grid from "@mui/material/Grid";
@@ -24,40 +26,40 @@ export default function Slug({ error, user }) {
         initialValues: initialValues,
         validationSchema: userSchema,
         onSubmit: async (values) => {
-            let data = {
+            const data = {
                 name: values.name,
                 email: values.email,
-            }
-            let res = await fetch(`${process.env.NEXT_PUBLIC_HOST}/api/user`, {
-                method: 'PATCH', // or 'PUT'
-                headers: {
-                    'Content-Type': ' application/json',
-                },
-                body: JSON.stringify(data),
-            })
-            let response = await res.json()
-            if (response.success) {
-                toast.success('Sucessfully Re-applied!', {
-                    position: "top-right",
-                    autoClose: 3000,
-                    hideProgressBar: false,
-                    closeOnClick: true,
-                    pauseOnHover: true,
-                    draggable: true,
-                    progress: undefined,
+            };
+            try {
+                const response = await axios.patch(`/api/user`, data, {
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
                 });
-                router.push(`/user/${response.id}`)
-            }
-            else {
-                toast.error(response.error, {
-                    position: "top-right",
-                    autoClose: 3000,
-                    hideProgressBar: false,
-                    closeOnClick: true,
-                    pauseOnHover: true,
-                    draggable: true,
-                    progress: undefined,
-                });
+                if (response.data.success) {
+                    toast.success('Successfully Re-applied!', {
+                        position: 'top-right',
+                        autoClose: 3000,
+                        hideProgressBar: false,
+                        closeOnClick: true,
+                        pauseOnHover: true,
+                        draggable: true,
+                        progress: undefined,
+                    });
+                    router.push(`/user/${response.data.id}`);
+                } else {
+                    toast.error(response.data.error, {
+                        position: 'top-right',
+                        autoClose: 3000,
+                        hideProgressBar: false,
+                        closeOnClick: true,
+                        pauseOnHover: true,
+                        draggable: true,
+                        progress: undefined,
+                    });
+                }
+            } catch (error) {
+                console.error(error);
             }
         }
     })
@@ -68,6 +70,9 @@ export default function Slug({ error, user }) {
 
     return (
         <div className=''>
+            <Head>
+                <title>{`My Account | ${process.env.NEXT_PUBLIC_WEBSITE_NAME}`}</title>
+            </Head>
             <Box
                 component="form"
                 onSubmit={handleSubmit}
@@ -147,7 +152,7 @@ export default function Slug({ error, user }) {
                     <div className="md:mx-8 md:mt-8 note">
                         <strong>Note:</strong>
                         <ul start="circle" className='md:ml-4'>
-                            <li>Your account has been created sucessfully</li>
+                            <li>Your account has been created successfully</li>
                             <li>You will get full access of website if your account status is Approved</li>
                             <li>You can update your account details after the application is {`"Accepted" or "Rejected"`} but not in {`"Pending`} state.</li>
                             <li>If account is Rejected then update your application according to requirements and reapply.</li>

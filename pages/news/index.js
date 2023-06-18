@@ -1,4 +1,6 @@
+import Head from 'next/head';
 import { useRouter } from 'next/router'
+import axios from 'axios';
 import { useEffect, useState } from "react";
 import Grid from "@mui/material/Grid";
 import NewsCard from '@/components/NewsCard';
@@ -30,33 +32,47 @@ export default function NewsLetter() {
 
   useEffect(() => {
     async function fetchData() {
-      let URL = `${process.env.NEXT_PUBLIC_HOST}/api/news/get?status=Approved&page=${page}&offset=${offset}`
-      let data = await fetch(URL);
-      let parsedData = await data.json();
-      await setAllNews(Array.from(parsedData.allNews));
-      await setTotalNews(parsedData.totalNews);
-      setLoading(false);
+      try {
+        const URL = `/api/news/get?status=Approved&page=0&offset=${offset}`;
+        const response = await axios.get(URL);
+        const parsedData = response.data;
+        setAllNews(Array.from(parsedData.allNews));
+        setTotalNews(parsedData.totalNews);
+        setLoading(false);
+      } catch (error) {
+        console.error('Error fetching data:', error);
+        setLoading(false);
+      }
     }
+
     fetchData();
     //eslint-disable-next-line
   }, [])
 
   const updateData = async () => {
-    setLoading(true);
-    let url = `${process.env.NEXT_PUBLIC_HOST}/api/news/get?status=Approved&page=${page + 1}&offset=${offset}`;
-    setPage(page + 1);
-    let data = await fetch(url);
-    let parsedData = await data.json();
-    setAllNews(allNews.concat(Array.from(parsedData.allNews)));
-    setTotalNews(parsedData.totalNews);
-    setLoading(false);
+    try {
+      setLoading(true);
+      let URL = `/api/news/get?status=Approved&page=${page + 1}&offset=${offset}`;
+      setPage(page + 1);
+      const response = await axios.get(URL);
+      let parsedData = response.data
+      setAllNews(allNews.concat(Array.from(parsedData.allNews)));
+      setTotalNews(parsedData.totalNews);
+      setLoading(false);
+    } catch (error) {
+      console.error('Error fetching data:', error);
+      setLoading(false);
+    }
   }
 
   return (
     <>
-      <div className="md:mx-8 p-3">
+      <Head>
+        <title>{`News | ${process.env.NEXT_PUBLIC_WEBSITE_NAME}`}</title>
+      </Head>
+      <div className="md:mx-8 p-3 pt-0 d:p-0">
         <h2 className='my-4 md:mb-8 text-center text-xl md:text-3xl font-bold'>
-          Welcome to Our News Letter
+          Welcome to Our News
         </h2>
 
         <InfiniteScroll
@@ -70,7 +86,7 @@ export default function NewsLetter() {
             columns={{ xs: 1, sm: 8, md: 12 }}
           >
             {Object.keys(allNews).map((news, index) => (
-              <Grid item xs={2} sm={4} md={3} key={index}>
+              <Grid item xs={2} sm={4} md={3} key={index} className='flex justify-center'>
                 <NewsCard news={allNews[index]} />
               </Grid>
             ))}

@@ -10,11 +10,11 @@ const handler = async (req, res) => {
         if (user) {
             let token = jwt.sign({ email: user.email, iat: Math.floor(Date.now() / 1000) }, process.env.JWT_SECRET, { expiresIn: 1000 * 60 * 10 });
             await User.findOneAndUpdate({ email: user.email }, { resetPasswordToken: token })
-            res.status(200).json({ sucess: true, token });
+            res.status(200).json({ success: true, token });
             return
         }
         else {
-            res.status(200).json({ sucess: false, error: 'User not found' })
+            res.status(200).json({ success: false, error: 'User not found' })
             return
         }
     }
@@ -28,13 +28,13 @@ const handler = async (req, res) => {
                 const salt = await bcrypt.genSalt(10);
                 const passwordHash = await bcrypt.hash(req.body.password, salt);
                 await User.findOneAndUpdate({ email: dbtoken.email }, { password: passwordHash, resetPasswordToken: null })
-                res.status(200).json({ sucess: true })
+                res.status(200).json({ success: true })
                 return
             } else {
-                res.status(200).json({ sucess: false, error: 'Token Expired' })
+                res.status(200).json({ success: false, error: 'Token Expired' })
             }
         }
-        res.status(200).json({ sucess: false, error: 'Invalid Token' })
+        res.status(200).json({ success: false, error: 'Invalid Token' })
         return
     }
 }

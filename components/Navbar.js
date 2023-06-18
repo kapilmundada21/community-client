@@ -31,6 +31,19 @@ export default function Navbar({ logout }) {
     setUser(myUser);
   }, []);
 
+  const extractFirstCharacters = (str) => {
+    const words = str.split(' ');
+    const firstCharacters = [];
+  
+    for (let i = 0; i < words.length; i++) {
+      if (words[i]) {
+        firstCharacters.push(words[i][0].toUpperCase());
+      }
+    }
+  
+    return firstCharacters.join('');
+  }
+
   const handleOpenNavMenu = (event) => {
     setAnchorElNav(event.currentTarget);
   };
@@ -50,17 +63,17 @@ export default function Navbar({ logout }) {
     <AppBar position="sticky" sx={{ zIndex: 5 }}>
       <Container maxWidth="xl">
         <Toolbar disableGutters>
-          <Image src={'/clogo.png'} height={40} width={40} alt='logo' className='hidden md:block mr-2' />
+          <Image src={'/images/clogo.png'} height={30} width={30} alt='logo' className='hidden md:block mr-2 w-auto h-auto' />
           <Typography
             variant="h6"
             noWrap
             component="a"
-            href="/"
+            href=""
             sx={{
               mr: 2,
               display: { xs: 'none', md: 'flex' },
               fontWeight: 700,
-              letterSpacing: '.15rem',
+              letterSpacing: '.05rem',
               color: 'inherit',
               textDecoration: 'none',
             }}
@@ -68,7 +81,7 @@ export default function Navbar({ logout }) {
             Community
           </Typography>
 
-          <Box sx={{ flexGrow: 1, display: { xs: 'flex', md: 'none' } }}>
+          <Box sx={{ flexGrow: 1, display: { xs: 'flex', md: 'none' }, ml: -2, mr: -1 }}>
             <IconButton
               size="large"
               aria-label="account of current user"
@@ -96,27 +109,31 @@ export default function Navbar({ logout }) {
               sx={{
                 display: { xs: 'block', md: 'none' },
               }}
-            > 
+            >
               {
                 !user &&
-                pages.map((page) => (
+                pages.map((page, index) => (
                   <MenuItem key={page} onClick={handleCloseNavMenu}>
-                    <Typography textAlign="center">{page}</Typography>
+                    <Link href={pagesRedirects[index]} key={index}>
+                      <Typography textAlign="center">{page}</Typography>
+                    </Link>
                   </MenuItem>
                 ))
               }
               {
                 user &&
-                userPages.map((page) => (
+                userPages.map((page, index) => (
                   <MenuItem key={page} onClick={handleCloseNavMenu}>
-                    <Typography textAlign="center">{page}</Typography>
+                    <Link href={userPagesRedirects[index]} key={index}>
+                      <Typography textAlign="center">{page}</Typography>
+                    </Link>
                   </MenuItem>
                 ))
               }
             </Menu>
           </Box>
-          
-          <Image src={'/clogo.png'} height={40} width={40} alt='logo' className='md:hidden mr-2' />
+
+          <Image src={'/images/clogo.png'} height={30} width={30} alt='logo' className='md:hidden mr-2 w-auto h-auto' />
           <Typography
             variant="h5"
             noWrap
@@ -126,8 +143,7 @@ export default function Navbar({ logout }) {
               mr: 2,
               display: { xs: 'flex', md: 'none' },
               flexGrow: 1,
-              fontWeight: 700,
-              letterSpacing: '.15rem',
+              fontWeight: 600,
               color: 'inherit',
               textDecoration: 'none',
             }}
@@ -171,7 +187,7 @@ export default function Navbar({ logout }) {
             <Box sx={{ flexGrow: 0 }}>
               <Tooltip title="Open settings">
                 <IconButton onClick={handleOpenUserMenu} sx={{ p: 0 }}>
-                  <Avatar alt={(user.email[0]).toUpperCase()} />
+                  <Avatar>{extractFirstCharacters(user.name).slice(0,2)}</Avatar>
                 </IconButton>
               </Tooltip>
               <Menu

@@ -1,6 +1,8 @@
+import Head from 'next/head';
 import Link from 'next/link'
 import Image from 'next/image'
 import { useRouter } from 'next/router'
+import axios from 'axios';
 import { useEffect } from 'react'
 import Avatar from "@mui/material/Avatar";
 import Button from "@mui/material/Button";
@@ -24,121 +26,114 @@ export default function Resetpassword() {
 
     useEffect(() => {
         let user = JSON.parse(localStorage.getItem("user"));
-        if(user && user.token){
+        if (user && user.token) {
             router.push("/")
         }
     });
 
-    const sendRestEmail = async () => {
-        let data = {
+    const sendResetEmail = async () => {
+        const data = {
             email: values.email,
-            sendMail: true
-        }
-        let a = await fetch(`${process.env.NEXT_PUBLIC_HOST}/api/auth/resetpassword`, {
-            method: 'POST', // or 'PUT'
-            headers: {
-                'Content-Type': ' application/json',
-            },
-            body: JSON.stringify(data),
-        })
-        let response = await a.json()
-        if (response.sucess) {
-            let data = {
-                to: values.email,
-                token: response.token,
-            }
-            let a = await fetch(`${process.env.NEXT_PUBLIC_HOST}/api/sendgrid`, {
-                method: 'POST', // or 'PUT'
+            sendMail: true,
+        };
+        try {
+            const response = await axios.post(`/api/auth/resetpassword`, data, {
                 headers: {
-                    'Content-Type': ' application/json',
+                    'Content-Type': 'application/json',
                 },
-                body: JSON.stringify(data),
-            })
-            let res = await a.json()
-            if(res.success){
-                toast.success("Mail has been send sucessfully!", {
-                    position: "top-right",
-                    autoClose: 3000,
-                    hideProgressBar: false,
-                    closeOnClick: true,
-                    pauseOnHover: true,
-                    draggable: true,
-                    progress: undefined,
-                });
-                setTimeout(() => {
-                    router.push('/login')
-                }, 1000);
-            }
-            else{
-                toast.error("500: "+res.error, {
-                    position: "top-right",
-                    autoClose: 3000,
-                    hideProgressBar: false,
-                    closeOnClick: true,
-                    pauseOnHover: true,
-                    draggable: true,
-                    progress: undefined,
-                });
-            }
-        }
-        else {
-            toast.error(response.error, {
-                position: "top-right",
-                autoClose: 3000,
-                hideProgressBar: false,
-                closeOnClick: true,
-                pauseOnHover: true,
-                draggable: true,
-                progress: undefined,
             });
+            if (response.data.success) {
+                const emailData = {
+                    to: values.email,
+                    token: response.data.token,
+                };
+                try {
+                    const emailResponse = await axios.post(`/api/sendgrid`, emailData, {
+                        headers: {
+                            'Content-Type': 'application/json',
+                        },
+                    });
+                    if (emailResponse.data.success) {
+                        toast.success('Mail has been sent successfully!', {
+                            position: 'top-right',
+                            autoClose: 3000,
+                            hideProgressBar: false,
+                            closeOnClick: true,
+                            pauseOnHover: true,
+                            draggable: true,
+                            progress: undefined,
+                        });
+                        router.push('/login');
+                    } else {
+                        toast.error('500: ' + emailResponse.data.error, {
+                            position: 'top-right',
+                            autoClose: 3000,
+                            hideProgressBar: false,
+                            closeOnClick: true,
+                            pauseOnHover: true,
+                            draggable: true,
+                            progress: undefined,
+                        });
+                    }
+                } catch (error) {
+                    console.error(error);
+                }
+            } else {
+                toast.error(response.data.error, {
+                    position: 'top-right',
+                    autoClose: 3000,
+                    hideProgressBar: false,
+                    closeOnClick: true,
+                    pauseOnHover: true,
+                    draggable: true,
+                    progress: undefined,
+                });
+            }
+        } catch (error) {
+            console.error(error);
         }
-    }
+    };
 
     const resetPassword = async () => {
-        const data = { 
-            token, 
-            password: values.password, 
-            sendMail: false 
-        }
-        let a = await fetch(`${process.env.NEXT_PUBLIC_HOST}/api/auth/resetpassword`, {
-            method: 'POST', // or 'PUT'
-            headers: {
-                'Content-Type': ' application/json',
-            },
-            body: JSON.stringify(data),
-        })
-        let response = await a.json()
-
-        if (response.sucess) {
-            toast.success('Password has been changed Sucessfully!', {
-                position: "top-right",
-                autoClose: 3000,
-                hideProgressBar: false,
-                closeOnClick: true,
-                pauseOnHover: true,
-                draggable: true,
-                progress: undefined,
+        const data = {
+            token,
+            password: values.password,
+            sendMail: false,
+        };
+        try {
+            const response = await axios.post(`/api/auth/resetpassword`, data, {
+                headers: {
+                    'Content-Type': 'application/json',
+                },
             });
-            setTimeout(() => {
-                router.push('/login')
-            }, 1000);
+            if (response.data.success) {
+                toast.success('Password has been changed Successfully!', {
+                    position: 'top-right',
+                    autoClose: 3000,
+                    hideProgressBar: false,
+                    closeOnClick: true,
+                    pauseOnHover: true,
+                    draggable: true,
+                    progress: undefined,
+                });
+                router.push('/login');
+            } else {
+                toast.error(response.data.error, {
+                    position: 'top-right',
+                    autoClose: 3000,
+                    hideProgressBar: false,
+                    closeOnClick: true,
+                    pauseOnHover: true,
+                    draggable: true,
+                    progress: undefined,
+                });
+                router.push('/resetpassword');
+            }
+        } catch (error) {
+            console.error(error);
         }
-        else {
-            toast.error(response.error, {
-                position: "top-right",
-                autoClose: 3000,
-                hideProgressBar: false,
-                closeOnClick: true,
-                pauseOnHover: true,
-                draggable: true,
-                progress: undefined,
-            });
-            setTimeout(() => {
-                router.push('/resetpassword')
-            }, 1000);
-        }
-    }
-
+    };
+    
     const initialValues = {
         email: "",
         password: "",
@@ -149,17 +144,15 @@ export default function Resetpassword() {
         initialValues: initialValues,
         validationSchema: token ? resetPasswordSchema : sendRestEmailSchema,
         onSubmit: (values) => {
-            if (token) {
-                resetPassword()
-            }
-            else {
-                sendRestEmail()
-            }
+            token ? resetPassword() : sendResetEmail();
         }
     })
 
     return (
         <div>
+            <Head>
+                <title>{`Reset Password | ${process.env.NEXT_PUBLIC_WEBSITE_NAME}`}</title>
+            </Head>
             <ThemeProvider theme={theme}>
                 <Container component="main" maxWidth="xs">
                     <CssBaseline />
@@ -172,7 +165,7 @@ export default function Resetpassword() {
                         }}
                     >
                         <Avatar sx={{ m: 1, bgcolor: "secondary.main" }}>
-                            <Image src="/clogo.png" alt="logo" height={40} width={40} />
+                            <Image src="/images/clogo.png" alt="logo" height={40} width={40} />
                         </Avatar>
                         <Typography component="h1" variant="h5">
                             Reset Password
@@ -182,7 +175,6 @@ export default function Resetpassword() {
                             onSubmit={handleSubmit}
                             sx={{ mt: 1 }}
                         >
-
                             {
                                 !token &&
                                 <TextField

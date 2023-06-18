@@ -1,6 +1,8 @@
+import Head from 'next/head';
 import Link from "next/link";
 import Image from "next/image";
 import { useRouter } from 'next/router'
+import axios from 'axios';
 import { useState, useEffect } from "react";
 import Avatar from "@mui/material/Avatar";
 import Button from "@mui/material/Button";
@@ -26,8 +28,8 @@ function Copyright(props) {
             {...props}
         >
             {"Copyright © "}
-            <Link color="inherit" href="https://weoto.in/">
-                Weoto Technologies Private Limited
+            <Link color="inherit" href="">
+                Community
             </Link>{" "}
             {new Date().getFullYear()}
             {"."}
@@ -41,12 +43,12 @@ export default function Login() {
     // eslint-disable-next-line
     const [gAuthUser, setGAuthUser] = useState(null);
     // eslint-disable-next-line
-    const [user, setUser] = useState(null); 
+    const [user, setUser] = useState(null);
     const router = useRouter();
 
     useEffect(() => {
         let user = JSON.parse(localStorage.getItem("user"));
-        if(user && user.token){
+        if (user && user.token) {
             router.push("/")
         }
     });
@@ -64,37 +66,43 @@ export default function Login() {
         initialValues: initialValues,
         validationSchema: loginSchema,
         onSubmit: async (values) => {
-            const data = { 
-                email: values.email, 
-                password: values.password, 
-            }
-            let res = await fetch(`${process.env.NEXT_PUBLIC_HOST}/api/auth/login`, {
-                method: 'POST', // or 'PUT'
-                headers: {
-                    'Content-Type': ' application/json',
-                },
-                body: JSON.stringify(data),
-            })
-            let response = await res.json()
-            if (response.success) {
-                localStorage.setItem('user', JSON.stringify({ token: response.token, name: response.user.name, email: response.user.email, id: response.user.id }))
-                router.push("/news")
-            }
-            else {
-                if(response.status === "Pending"){
-                    router.push(`/user/${response.id}`)
+            const data = {
+                email: values.email,
+                password: values.password,
+            };
+            try {
+                const response = await axios.post(`/api/auth/login`, data, {
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                });
+                if (response.data.success) {
+                    localStorage.setItem(
+                        'user',
+                        JSON.stringify({
+                            token: response.data.token,
+                            name: response.data.user.name,
+                            id: response.data.user._id,
+                        })
+                    );
+                    router.push('/news');
+                } else {
+                    if (response.data.status === 'Pending') {
+                        router.push(`/user/${response.data.id}`);
+                    } else {
+                        toast.error(response.data.error, {
+                            position: 'top-right',
+                            autoClose: 3000,
+                            hideProgressBar: false,
+                            closeOnClick: true,
+                            pauseOnHover: true,
+                            draggable: true,
+                            progress: undefined,
+                        });
+                    }
                 }
-                else{
-                    toast.error(response.error, {
-                        position: "top-right",
-                        autoClose: 3000,
-                        hideProgressBar: false,
-                        closeOnClick: true,
-                        pauseOnHover: true,
-                        draggable: true,
-                        progress: undefined,
-                    });
-                }
+            } catch (error) {
+                console.error(error);
             }
         }
     })
@@ -127,6 +135,9 @@ export default function Login() {
 
     return (
         <ThemeProvider theme={theme}>
+            <Head>
+                <title>{`Login | ${process.env.NEXT_PUBLIC_WEBSITE_NAME}`}</title>
+            </Head>
             <Container component="main" maxWidth="xs">
                 <CssBaseline />
 
@@ -139,7 +150,7 @@ export default function Login() {
                     }}
                 >
                     <Avatar sx={{ m: 1, bgcolor: "secondary.main" }}>
-                        <Image src="/clogo.png" alt="logo" height={40} width={40} />
+                        <Image src="/images/clogo.png" alt="logo" height={40} width={40} />
                     </Avatar>
                     <Typography component="h1" variant="h5">
                         Log in
@@ -201,10 +212,10 @@ export default function Login() {
                 </Box>
 
                 {/* <div className="my-6 flex items-center">
-          <div className="flex-grow bg bg-gray-300 h-0.5"></div>
-          <div className="flex-grow-0 mx-5">or continue with Google</div>
-          <div className="flex-grow bg bg-gray-300 h-0.5"></div>
-        </div> */}
+                    <div className="flex-grow bg bg-gray-300 h-0.5"></div>
+                    <div className="flex-grow-0 mx-5">or continue with Google</div>
+                    <div className="flex-grow bg bg-gray-300 h-0.5"></div>
+                </div> */}
 
                 <center>
                     <div id="googleAuthDiv" className="w-[80vw] md:w-[20vw]"></div>

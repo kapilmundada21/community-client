@@ -1,6 +1,8 @@
+import Head from 'next/head';
 import Link from "next/link";
 import Image from "next/image";
 import { useRouter } from 'next/router'
+import axios from 'axios';
 import { useState, useEffect } from "react";
 import Avatar from "@mui/material/Avatar";
 import Button from "@mui/material/Button";
@@ -26,8 +28,8 @@ function Copyright(props) {
       {...props}
     >
       {"Copyright © "}
-      <Link color="inherit" href="https://weoto.in/">
-        Weoto Technologies Private Limited
+      <Link color="inherit" href="">
+        Community
       </Link>{" "}
       {new Date().getFullYear()}
       {"."}
@@ -62,33 +64,31 @@ export default function Signup() {
     validationSchema: signupSchema,
     onSubmit: async (values) => {
       const data = {
-        name: values.firstName + " " + values.lastName,
+        name: values.firstName + ' ' + values.lastName,
         email: values.email,
-        password: values.password
-      }
-      let res = await fetch(`${process.env.NEXT_PUBLIC_HOST}/api/auth/signup`, {
-        method: 'POST', // or 'PUT'
-        headers: {
-          'Content-Type': ' application/json',
-        },
-        body: JSON.stringify(data),
-      })
-      let response = await res.json()
-      if (response.success) {
-        if (response.status === "Pending") {
-          router.push(`/user/${response.id}`)
-        }
-      }
-      else {
-        toast.error(response.error, {
-          position: "top-right",
-          autoClose: 3000,
-          hideProgressBar: false,
-          closeOnClick: true,
-          pauseOnHover: true,
-          draggable: true,
-          progress: undefined,
+        password: values.password,
+      };
+      try {
+        const response = await axios.post(`/api/auth/signup`, data, {
+          headers: {
+            'Content-Type': 'application/json',
+          },
         });
+        if (response.data.success && response.data.status === 'Pending') {
+          router.push(`/user/${response.data.id}`);
+        } else {
+          toast.error(response.data.error, {
+            position: 'top-right',
+            autoClose: 3000,
+            hideProgressBar: false,
+            closeOnClick: true,
+            pauseOnHover: true,
+            draggable: true,
+            progress: undefined,
+          });
+        }
+      } catch (error) {
+        console.error(error);
       }
     }
   })
@@ -121,6 +121,9 @@ export default function Signup() {
 
   return (
     <ThemeProvider theme={theme}>
+      <Head>
+        <title>{`Signup | ${process.env.NEXT_PUBLIC_WEBSITE_NAME}`}</title>
+      </Head>
       <Container component="main" maxWidth="xs">
         <CssBaseline />
         <Box
@@ -132,7 +135,7 @@ export default function Signup() {
           }}
         >
           <Avatar sx={{ m: 1, bgcolor: "secondary.main" }}>
-            <Image src="/clogo.png" alt="logo" height={40} width={40} />
+            <Image src="/images/clogo.png" alt="logo" height={40} width={40} />
           </Avatar>
           <Typography component="h1" variant="h5">
             Sign up

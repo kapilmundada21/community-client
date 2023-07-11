@@ -3,7 +3,7 @@ import Link from "next/link";
 import Image from "next/image";
 import { useRouter } from 'next/router'
 import axios from 'axios';
-import { useState, useEffect } from "react";
+import { useEffect } from "react";
 import Avatar from "@mui/material/Avatar";
 import Button from "@mui/material/Button";
 import CssBaseline from "@mui/material/CssBaseline";
@@ -15,7 +15,6 @@ import Container from "@mui/material/Container";
 import { createTheme, ThemeProvider } from "@mui/material/styles";
 import { toast } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
-import jwt_decode from "jwt-decode";
 import { useFormik } from 'formik';
 import { loginSchema } from "@/validationSchema";
 
@@ -29,7 +28,7 @@ function Copyright(props) {
         >
             {"Copyright © "}
             <Link color="inherit" href="">
-                Community
+                {process.env.NEXT_PUBLIC_WEBSITE_NAME}
             </Link>{" "}
             {new Date().getFullYear()}
             {"."}
@@ -40,10 +39,6 @@ function Copyright(props) {
 const theme = createTheme();
 
 export default function Login() {
-    // eslint-disable-next-line
-    const [gAuthUser, setGAuthUser] = useState(null);
-    // eslint-disable-next-line
-    const [user, setUser] = useState(null);
     const router = useRouter();
 
     useEffect(() => {
@@ -51,11 +46,8 @@ export default function Login() {
         if (user && user.token) {
             router.push("/")
         }
-    });
-
-    const handelGAuth = (userObject) => {
-
-    };
+    // eslint-disable-next-line
+    }, []);
 
     const initialValues = {
         email: "",
@@ -77,29 +69,29 @@ export default function Login() {
                     },
                 });
                 if (response.data.success) {
-                    localStorage.setItem(
-                        'user',
-                        JSON.stringify({
-                            token: response.data.token,
-                            name: response.data.user.name,
-                            id: response.data.user._id,
-                        })
-                    );
-                    router.push('/news');
-                } else {
-                    if (response.data.status === 'Pending') {
-                        router.push(`/user/${response.data.id}`);
+                    if (response.data.user.status !== 'Approved') {
+                        router.push(`/user/profile/${response.data.user._id}`);
                     } else {
-                        toast.error(response.data.error, {
-                            position: 'top-right',
-                            autoClose: 3000,
-                            hideProgressBar: false,
-                            closeOnClick: true,
-                            pauseOnHover: true,
-                            draggable: true,
-                            progress: undefined,
-                        });
+                        localStorage.setItem(
+                            'user',
+                            JSON.stringify({
+                                token: response.data.token,
+                                name: response.data.user.name,
+                                id: response.data.user._id,
+                            })
+                        );
+                        router.push('/news');
                     }
+                } else {
+                    toast.error(response.data.error, {
+                        position: 'top-right',
+                        autoClose: 3000,
+                        hideProgressBar: false,
+                        closeOnClick: true,
+                        pauseOnHover: true,
+                        draggable: true,
+                        progress: undefined,
+                    });
                 }
             } catch (error) {
                 console.error(error);
@@ -107,37 +99,12 @@ export default function Login() {
         }
     })
 
-    const handleCallbackResponse = (response) => {
-        let userObject = jwt_decode(response.credential);
-        setGAuthUser(userObject);
-        handelGAuth(userObject);
-    };
-
-    // useEffect(() => {
-    //   // / * global google */
-    //   //eslint-disable-next-line
-    //   google.accounts.id.initialize({
-    //     client_id: {process.env.GAUTH_CLIENT_ID},
-    //     callback: handleCallbackResponse,
-    //   });
-
-    //   //eslint-disable-next-line
-    //   google.accounts.id.renderButton(document.getElementById("googleAuthDiv"), {
-    //     theme: "outline",
-    //     size: "large",
-    //   });
-
-    //   //eslint-disable-next-line
-    //   google.accounts.id.prompt();
-
-    //   //eslint-disable-next-line
-    // }, [values.loginType]);
-
     return (
         <ThemeProvider theme={theme}>
             <Head>
                 <title>{`Login | ${process.env.NEXT_PUBLIC_WEBSITE_NAME}`}</title>
             </Head>
+            
             <Container component="main" maxWidth="xs">
                 <CssBaseline />
 
@@ -150,7 +117,7 @@ export default function Login() {
                     }}
                 >
                     <Avatar sx={{ m: 1, bgcolor: "secondary.main" }}>
-                        <Image src="/images/clogo.png" alt="logo" height={40} width={40} />
+                        <Image src="/images/clogo.png" alt="logo" height={40} width={40} loading="lazy" />
                     </Avatar>
                     <Typography component="h1" variant="h5">
                         Log in
@@ -210,16 +177,6 @@ export default function Login() {
                         </Grid>
                     </Box>
                 </Box>
-
-                {/* <div className="my-6 flex items-center">
-                    <div className="flex-grow bg bg-gray-300 h-0.5"></div>
-                    <div className="flex-grow-0 mx-5">or continue with Google</div>
-                    <div className="flex-grow bg bg-gray-300 h-0.5"></div>
-                </div> */}
-
-                <center>
-                    <div id="googleAuthDiv" className="w-[80vw] md:w-[20vw]"></div>
-                </center>
 
                 <Copyright sx={{ mt: 8, mb: 4 }} />
             </Container>

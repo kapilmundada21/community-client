@@ -165,7 +165,7 @@ export default function Resetpassword() {
                         }}
                     >
                         <Avatar sx={{ m: 1, bgcolor: "secondary.main" }}>
-                            <Image src="/images/clogo.png" alt="logo" height={40} width={40} />
+                            <Image src="/images/clogo.png" alt="logo" height={40} width={40} loading="lazy" />
                         </Avatar>
                         <Typography component="h1" variant="h5">
                             Reset Password

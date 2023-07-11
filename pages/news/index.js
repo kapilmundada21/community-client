@@ -33,8 +33,13 @@ export default function NewsLetter() {
   useEffect(() => {
     async function fetchData() {
       try {
-        const URL = `/api/news/get?status=Approved&page=0&offset=${offset}`;
-        const response = await axios.get(URL);
+        const response = await axios.get(`/api/news/get`, {
+          params: {
+            status: "Approved",
+            page: 0,
+            offset: offset,
+          }
+        });
         const parsedData = response.data;
         setAllNews(Array.from(parsedData.allNews));
         setTotalNews(parsedData.totalNews);
@@ -70,8 +75,9 @@ export default function NewsLetter() {
       <Head>
         <title>{`News | ${process.env.NEXT_PUBLIC_WEBSITE_NAME}`}</title>
       </Head>
-      <div className="md:mx-8 p-3 pt-0 d:p-0">
-        <h2 className='my-4 md:mb-8 text-center text-xl md:text-3xl font-bold'>
+
+      <div className="md:mx-8 p-3 pt-0 md:p-0">
+        <h2 className='my-4 md:mb-8 text-center text-2xl md:text-3xl font-bold'>
           Welcome to Our News
         </h2>
 
@@ -84,6 +90,7 @@ export default function NewsLetter() {
             container
             spacing={{ xs: 2, md: 5 }}
             columns={{ xs: 1, sm: 8, md: 12 }}
+            className='mb-4 md:mb-8'
           >
             {Object.keys(allNews).map((news, index) => (
               <Grid item xs={2} sm={4} md={3} key={index} className='flex justify-center'>

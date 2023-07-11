@@ -1,4 +1,5 @@
 import Head from 'next/head';
+import Link from 'next/link';
 import News from '../../models/news';
 import mongoose from "mongoose";
 import { useRouter } from 'next/router'
@@ -16,13 +17,12 @@ import ListItem from '@mui/material/ListItem';
 import ListItemButton from '@mui/material/ListItemButton';
 import ListItemIcon from '@mui/material/ListItemIcon';
 import ListItemText from '@mui/material/ListItemText';
-import Link from 'next/link';
 
 export default function Slug({ error, news, allNews }) {
     const router = useRouter();
     const { slug } = router.query;
     const [anchor, setAnchor] = React.useState("left");
-    const drawerWidth = anchor === "left" ? 400 : "auto";
+    const drawerWidth = anchor === "left" ? 350 : "auto";
 
     if (error == 404) {
         return <Error statusCode={404} />
@@ -33,6 +33,7 @@ export default function Slug({ error, news, allNews }) {
             <Head>
                 <title>{`${news.title} | ${process.env.NEXT_PUBLIC_WEBSITE_NAME}`}</title>
             </Head>
+            
             <Box className='flex flex-col md:flex-row'>
                 <CssBaseline />
 
@@ -61,9 +62,9 @@ export default function Slug({ error, news, allNews }) {
                                 <Link href={`/news/${allNews[index]._id}`} target='_blank' className='text-blue-600' >
                                     <ListItemButton>
                                         <ListItemIcon>
-                                            <Image src={allNews[index].img} alt='' width={120} height={120} className='mr-2' />
+                                            <Image src={allNews[index].img} alt='' width={120} height={120} className='mr-2' loading="lazy" />
                                         </ListItemIcon>
-                                        <ListItemText primary={allNews[index].title} className="hover:underline" />
+                                        <ListItemText primary={(allNews[index].title).slice(0, 50) + "...."} className="hover:underline" />
                                     </ListItemButton>
                                 </Link>
                             </ListItem>
@@ -84,7 +85,7 @@ export default function Slug({ error, news, allNews }) {
                                 Published By -
                                 <span className="text-blue-600"> {news.publishedBy}</span>
                             </span>
-                            <Image src={news.img} alt='' height={400} width={500} />
+                            <Image src={news.img} alt='' height={400} width={500} loading="lazy" />
                             <div dangerouslySetInnerHTML={{ __html: news.description }}></div>
                         </div>
                     </div>
@@ -102,7 +103,7 @@ export default function Slug({ error, news, allNews }) {
                                 <Link href={`/news/${allNews[index]._id}`} target='_blank' className='text-blue-600' >
                                     <ListItemButton>
                                         <ListItemIcon>
-                                            <Image src={allNews[index].img} alt='' width={80} height={80} className='mr-2' />
+                                            <Image src={allNews[index].img} alt='' width={80} height={80} className='mr-2' loading="lazy" />
                                         </ListItemIcon>
                                         <div className="hover:underline text-blue-500 text-sm" >
                                             {(allNews[index].title).slice(0, 60) + "...."}

@@ -20,6 +20,9 @@ export const signupSchema = Yup.object({
     firstName: Yup.string().min(2).max(25).required("please enter your first name"),
     lastName: Yup.string().min(2).max(25).required("please enter your last name"),
     email: Yup.string().matches(emailValidation, 'must match abc@company.com').required("please enter your email"),
+    gender: Yup.string().min(4).max(10).required("please select gender"),
+    city: Yup.string().min(2).max(15).required("please select your city"),
+    state: Yup.string().min(2).max(25).required("please select your state"),
     password: Yup.string().min(4).max(25).required("please enter your password"),
 });
 

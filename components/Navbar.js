@@ -22,7 +22,7 @@ export default function Navbar({ logout }) {
   const pagesRedirects = ['/login', '/signup'];
   const userPagesRedirects = ['/news', '/news/uploadNews'];
   const settings = ['Profile', 'Account', 'Dashboard', 'Logout'];
-  const settingsRedirects = ['/profile', '/account', '/dashboard', ''];
+  const settingsRedirects = [`/user/profile/${user?.id}`, '/account', '/dashboard', ''];
   const [anchorElNav, setAnchorElNav] = React.useState(null);
   const [anchorElUser, setAnchorElUser] = React.useState(null);
 
@@ -63,12 +63,11 @@ export default function Navbar({ logout }) {
     <AppBar position="sticky" sx={{ zIndex: 5 }}>
       <Container maxWidth="xl">
         <Toolbar disableGutters>
-          <Image src={'/images/clogo.png'} height={30} width={30} alt='logo' className='hidden md:block mr-2 w-auto h-auto' />
+          <Image src={'/images/clogo.png'} height={30} width={30} alt='logo' className='hidden md:block mr-2 w-auto h-auto' loading="lazy" />
           <Typography
             variant="h6"
             noWrap
-            component="a"
-            href=""
+            component="span"
             sx={{
               mr: 2,
               display: { xs: 'none', md: 'flex' },
@@ -78,7 +77,7 @@ export default function Navbar({ logout }) {
               textDecoration: 'none',
             }}
           >
-            Community
+            <Link href={'/'}>{process.env.NEXT_PUBLIC_WEBSITE_NAME}</Link>
           </Typography>
 
           <Box sx={{ flexGrow: 1, display: { xs: 'flex', md: 'none' }, ml: -2, mr: -1 }}>
@@ -133,12 +132,11 @@ export default function Navbar({ logout }) {
             </Menu>
           </Box>
 
-          <Image src={'/images/clogo.png'} height={30} width={30} alt='logo' className='md:hidden mr-2 w-auto h-auto' />
+          <Image src={'/images/clogo.png'} height={30} width={30} alt='logo' className='md:hidden mr-2 w-auto h-auto' loading="lazy" />
           <Typography
             variant="h5"
             noWrap
-            component="a"
-            href=""
+            component="span"
             sx={{
               mr: 2,
               display: { xs: 'flex', md: 'none' },
@@ -148,7 +146,7 @@ export default function Navbar({ logout }) {
               textDecoration: 'none',
             }}
           >
-            Community
+            <Link href={'/'}>{process.env.NEXT_PUBLIC_WEBSITE_NAME}</Link>
           </Typography>
 
           {

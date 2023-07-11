@@ -4,5 +4,11 @@
             "path": "/api/cron-job/deleteResetpasswordToken",
             "schedule": "0 0 * * *"
         }
+    ],
+    "rewrites": [
+        {
+            "source": "/favicon/favicon.ico",
+            "destination": "/favicon/favicon.ico"
+        }
     ]
 }

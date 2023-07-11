@@ -6,7 +6,7 @@ const handler = async (req, res) => {
         const newsStatus = req.query.status; 
         const page = req.query.page; 
         const offset = req.query.offset;
-        let totalNews = await News.find({ status: newsStatus }).count();
+        let totalNews = await News.countDocuments({ status: newsStatus });
         let news = await News.find({ status: newsStatus }).sort({ "createdAt": -1 }).skip(page*offset).limit(offset);
         res.status(200).json({ success: true, allNews: news, totalNews })
         return

@@ -1,4 +1,4 @@
-import News from "@/models/news"
+import User from "@/models/user"
 import connectDb from "@/middleware/mongoose"
 
 const handler = async (req, res) => {
@@ -8,23 +8,23 @@ const handler = async (req, res) => {
         return
     }
 
-    let news;
-    const newsId = req.query.id;
+    let user;
+    const userId = req.query.id;
     
     try {
-        news = await News.findOne({ _id: newsId })
+        user = await User.findOne({ _id: userId })
     }
     catch (error) {
         console.error(error);
     }
 
-    if (!news) {
-        res.status(200).json({ success: false, error: `news does not exist.` });
+    if (!user) {
+        res.status(200).json({ success: false, error: `user does not exist.` });
         return
     }
 
-    let deletedNews = await News.deleteOne({ _id: newsId })
-    res.status(200).json({ success: true, news: deletedNews })
+    let deletedUser = await User.deleteOne({ _id: userId })
+    res.status(200).json({ success: true, user: deletedUser })
     return
 }
 export default connectDb(handler);

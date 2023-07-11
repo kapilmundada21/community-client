@@ -18,6 +18,7 @@ import "react-toastify/dist/ReactToastify.css";
 import jwt_decode from "jwt-decode";
 import { useFormik } from 'formik';
 import { signupSchema } from "@/validationSchema";
+import { Autocomplete, FormControl, FormControlLabel, Radio, RadioGroup } from '@mui/material';
 
 function Copyright(props) {
   return (
@@ -29,7 +30,7 @@ function Copyright(props) {
     >
       {"Copyright © "}
       <Link color="inherit" href="">
-        Community
+        {process.env.NEXT_PUBLIC_WEBSITE_NAME}
       </Link>{" "}
       {new Date().getFullYear()}
       {"."}
@@ -39,10 +40,13 @@ function Copyright(props) {
 
 const theme = createTheme();
 
+// const cityOptions = [
+//   'Nashik',
+//   'Dhule',
+//   'Jalgaon'
+// ];
+
 export default function Signup() {
-  // eslint-disable-next-line
-  const [user, setUser] = useState(null);
-  const [gAuthUser, setGAuthUser] = useState(null);
   const router = useRouter();
 
   useEffect(() => {
@@ -56,6 +60,9 @@ export default function Signup() {
     firstName: "",
     lastName: "",
     email: "",
+    gender: "Male",
+    city: "",
+    state: "",
     password: "",
   }
 
@@ -66,16 +73,19 @@ export default function Signup() {
       const data = {
         name: values.firstName + ' ' + values.lastName,
         email: values.email,
+        gender: values.gender,
+        city: values.city,
+        state: values.state,
         password: values.password,
       };
       try {
-        const response = await axios.post(`/api/auth/signup`, data, {
+        const response = await axios.post(`/api/user/post`, data, {
           headers: {
             'Content-Type': 'application/json',
           },
         });
         if (response.data.success && response.data.status === 'Pending') {
-          router.push(`/user/${response.data.id}`);
+          router.push(`/user/profile/${response.data.id}`);
         } else {
           toast.error(response.data.error, {
             position: 'top-right',
@@ -93,37 +103,12 @@ export default function Signup() {
     }
   })
 
-  const handleCallbackResponse = (response) => {
-    let userObject = jwt_decode(response.credential);
-    setGAuthUser(userObject);
-
-  };
-
-  // useEffect(() => {
-  //   // / * global google */
-  //   //eslint-disable-next-line
-  //   google.accounts.id.initialize({
-  //     client_id: {process.env.GAUTH_CLIENT_ID},
-  //     callback: handleCallbackResponse,
-  //   });
-
-  //   //eslint-disable-next-line
-  //   google.accounts.id.renderButton(document.getElementById("googleAuthDiv"), {
-  //     theme: "outline",
-  //     size: "large",
-  //   });
-
-  //   //eslint-disable-next-line
-  //   google.accounts.id.prompt();
-
-  //   //eslint-disable-next-line
-  // }, [gAuthUser]);
-
   return (
     <ThemeProvider theme={theme}>
       <Head>
         <title>{`Signup | ${process.env.NEXT_PUBLIC_WEBSITE_NAME}`}</title>
       </Head>
+
       <Container component="main" maxWidth="xs">
         <CssBaseline />
         <Box
@@ -135,7 +120,7 @@ export default function Signup() {
           }}
         >
           <Avatar sx={{ m: 1, bgcolor: "secondary.main" }}>
-            <Image src="/images/clogo.png" alt="logo" height={40} width={40} />
+            <Image src="/images/clogo.png" alt="logo" height={40} width={40} loading="lazy" />
           </Avatar>
           <Typography component="h1" variant="h5">
             Sign up
@@ -149,15 +134,15 @@ export default function Signup() {
             <Grid container spacing={2}>
               <Grid item xs={12} sm={6}>
                 <TextField
-                  autoComplete="given-name"
-                  name="firstName"
                   required
                   fullWidth
+                  label="First Name"
                   id="firstName"
+                  name="firstName"
                   value={values.firstName}
                   onChange={handleChange}
                   onBlur={handleBlur}
-                  label="First Name"
+                  autoComplete="given-name"
                   autoFocus
                 />
                 {errors.firstName && touched.firstName ? (<p className="text-red-600 text-sm">{errors.firstName}</p>) : null}
@@ -166,12 +151,12 @@ export default function Signup() {
                 <TextField
                   required
                   fullWidth
+                  label="Last Name"
                   id="lastName"
+                  name="lastName"
                   value={values.lastName}
                   onChange={handleChange}
                   onBlur={handleBlur}
-                  label="Last Name"
-                  name="lastName"
                   autoComplete="family-name"
                 />
                 {errors.lastName && touched.lastName ? (<p className="text-red-600 text-sm">{errors.lastName}</p>) : null}
@@ -180,15 +165,74 @@ export default function Signup() {
                 <TextField
                   required
                   fullWidth
+                  label="Email Address"
                   id="email"
+                  name="email"
                   value={values.email}
                   onChange={handleChange}
                   onBlur={handleBlur}
-                  label="Email Address"
-                  name="email"
                   autoComplete="email"
                 />
                 {errors.email && touched.email ? (<p className="text-red-600 text-sm">{errors.email}</p>) : null}
+              </Grid>
+              <Grid item xs={12}>
+                <FormControl className="space-x-4">
+                  <Typography variant='subtitle1'>Gender</Typography>
+                  <RadioGroup
+                    row
+                    aria-labelledby="demo-row-radio-buttons-group-label"
+                    id="gender"
+                    name="gender"
+                    value={values.gender}
+                    onChange={handleChange}
+                    onBlur={handleBlur}
+                  >
+                    <FormControlLabel value="Male" control={<Radio />} label="Male" />
+                    <FormControlLabel value="Female" control={<Radio />} label="Female" />
+                    <FormControlLabel value="Third" control={<Radio />} label="Third" />
+                  </RadioGroup>
+                </FormControl>
+                {errors.gender && touched.gender ? (<p className="text-red-600 text-sm">{errors.gender}</p>) : null}
+              </Grid>
+              <Grid item xs={12}>
+                {/* <Autocomplete
+                  disablePortal
+                  freeSolo
+                  options={cityOptions}
+                  renderInput={(params) =>
+                    <TextField {...params}
+                      id="city"
+                      name="city"
+                      value={values.city}
+                      onChange={handleChange}
+                      onBlur={handleBlur}
+                      label="City"
+                    />}
+                /> */}
+                <TextField
+                  required
+                  fullWidth
+                  label="City"
+                  id="city"
+                  name="city"
+                  value={values.city}
+                  onChange={handleChange}
+                  onBlur={handleBlur}
+                />
+                {errors.city && touched.city ? (<p className="text-red-600 text-sm">{errors.city}</p>) : null}
+              </Grid>
+              <Grid item xs={12}>
+                <TextField
+                  required
+                  fullWidth
+                  label="State"
+                  id="state"
+                  name="state"
+                  value={values.state}
+                  onChange={handleChange}
+                  onBlur={handleBlur}
+                />
+                {errors.state && touched.state ? (<p className="text-red-600 text-sm">{errors.state}</p>) : null}
               </Grid>
               <Grid item xs={12}>
                 <TextField
@@ -206,6 +250,7 @@ export default function Signup() {
                 {errors.password && touched.password ? (<p className="text-red-600 text-sm">{errors.password}</p>) : null}
               </Grid>
             </Grid>
+
             <Button
               type="submit"
               fullWidth
@@ -214,6 +259,7 @@ export default function Signup() {
             >
               Sign Up
             </Button>
+
             <Grid container justifyContent="flex-end">
               <Grid item>
                 <Link href="/login" className="text-blue-400" variant="body2">
@@ -221,19 +267,9 @@ export default function Signup() {
                 </Link>
               </Grid>
             </Grid>
-
-            {/* <div className="my-6 flex items-center">
-              <div className="flex-grow bg bg-gray-300 h-0.5"></div>
-              <div className="flex-grow-0 mx-5">or continue with Google</div>
-              <div className="flex-grow bg bg-gray-300 h-0.5"></div>
-            </div> */}
-
-            <center>
-              <div id="googleAuthDiv" className="w-[80vw] md:w-[20vw]"></div>
-            </center>
           </Box>
         </Box>
-        <Copyright sx={{ mt: 5 }} />
+        <Copyright sx={{ my: 5 }} />
       </Container>
     </ThemeProvider>
   );

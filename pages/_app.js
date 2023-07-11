@@ -1,5 +1,6 @@
-import Navbar from '@/components/Navbar';
 import '@/styles/globals.css'
+import Navbar from '@/components/Navbar';
+import Head from 'next/head';
 import { useRouter } from 'next/router'
 import { useEffect, useState } from 'react'
 import { ToastContainer, toast } from 'react-toastify';
@@ -22,6 +23,14 @@ export default function App({ Component, pageProps }) {
   }, [router.query])
 
   return <>
+    <Head>
+      <title>{process.env.NEXT_PUBLIC_WEBSITE_NAME}</title>
+      <link rel="apple-touch-icon" sizes="180x180" href="/favicon/apple-touch-icon.png" />
+      <link rel="icon" type="image/png" sizes="32x32" href="/favicon/favicon-32x32.png" />
+      <link rel="icon" type="image/png" sizes="16x16" href="/favicon/favicon-16x16.png" />
+      <link rel="manifest" href="/favicon/site.webmanifest" />
+    </Head>
+
     <ToastContainer
       position="top-right"
       autoClose={3000}
@@ -33,6 +42,7 @@ export default function App({ Component, pageProps }) {
       draggable
       pauseOnHover
     />
+
     {key && <Navbar key={key} logout={logout} />}
     <Component {...pageProps} />
   </>

@@ -40,6 +40,7 @@ function UploadNews() {
         if (localUser && !user) {
             setUser(localUser);
             setValue('publishedBy', localUser.name);
+            setValue('userId', localUser.id);
         }
 
         try {
@@ -60,7 +61,6 @@ function UploadNews() {
     });
 
     const onSubmit = async (data) => {
-        console.log(data);
         try {
             const response = await axios.post(`/api/news/post`, data, {
                 headers: {
@@ -109,6 +109,7 @@ function UploadNews() {
             <Head>
                 <title>{`Upload News | ${process.env.NEXT_PUBLIC_WEBSITE_NAME}`}</title>
             </Head>
+            
             <Box
                 component="form"
                 onSubmit={handleSubmit(onSubmit)}
@@ -176,6 +177,21 @@ function UploadNews() {
                                 }}
                             />
                             {errors.publishedBy ? (<p className="text-red-600 text-sm">{errors.publishedBy.message}</p>) : null}
+                        </Grid>
+                        <Grid item xs={2} sm={6} md={6}>
+                            <TextField
+                                required
+                                id="userId"
+                                label="Publisher Id"
+                                {...register('userId')}
+                                fullWidth
+                                InputProps={{
+                                    readOnly: true,
+                                }}
+                                hidden
+                                className='hidden'
+                            />
+                            {errors.userId ? (<p className="text-red-600 text-sm">{errors.userId.message}</p>) : null}
                         </Grid>
                     </Grid>
                     <center>
